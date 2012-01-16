@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# authentication is yet missing
+update_script="http://yourexternalserver.tld/update.php?ip="
+last_ip_file="/tmp/last_ip"
+ip=$(curl -s http://httpbin.org/ip | sed 's/[\n\t]//g' | sed 's/[{}]//g' | sed 's/"origin"\://g' | sed 's/\"//g' | tr -d ' ') 
+ip=$(echo $ip | tr -d ' ')
+
+# if the IP is not empty check if it has changed
+if [ ! "$ip" = "" ]; then
+  # if the ip file doesn't exist create it and update the proxy
+  # else compare both IPs and update the proxy if necessary
+  if [ -f $last_ip_file ]; then
+    . $last_ip_file
+    if [ ! "$ip" = "$last_ip" ]; then
+      echo "last_ip=$ip" > $last_ip_file
+      echo "The IP must be updated to $ip"
+      if [ $# -gt 0 ]; then
+        echo "The IP got not updated because this is a dry run."
+      else
+        curl -s ${update_script}$ip >/dev/null 2>&1
+      fi
+    fi
+  else
+    touch $last_ip_file
+    echo "last_ip=$ip" > $last_ip_file
+    echo "The IP the proxy has to point to is $ip"
+    if [ $# -gt 0 ]; then
+      echo "The IP got not updated because this is a dry run."
+    else
+      curl -s ${update_script}$ip >/dev/null 2>&1
+    fi
+  fi
+else
+  echo "The IP is empty"
+fi
+

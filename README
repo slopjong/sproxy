@@ -1,0 +1,3 @@
+Sproxie is a little server-side proxy which allows the usage of a domain or subdomain of an external web server with the websites of the home web server. A script on the home server updates the IP on the external server and thus no extra dyndns solution is required. Another feature is that the home IP is hidden.
+
+Note: the server-side scripts are yet missing.
